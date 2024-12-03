@@ -1,57 +1,41 @@
 package com.onboarding.servey.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.onboarding.common.domain.BaseEntity;
-import com.onboarding.servey.dto.request.OptionRequest;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Value;
 
-@Entity
-@Getter
-@Table(name = "option")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Option extends BaseEntity {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Option {
 
-	@Column(nullable = false)
+	private Long optionId;
 	private int number;
 
-	@JsonBackReference
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "question_id")
-	private Question question;
-
-	@Builder
-	public Option(int number, Question question) {
-		this.number = number;
-		this.question = question;
+	public static Option generateOption(
+		OptionId optionId,
+		OptionNumber optionNumber) {
+		return new Option(
+			optionId.optionId,
+			optionNumber.numberValue);
 	}
 
-	public void setQuestion(Question question) {
-		this.question = question;
+	@Value
+	public static class OptionId {
+		Long optionId;
+
+		public OptionId(Long optionId) {
+			this.optionId = optionId;
+		}
 	}
 
-	public static Option of(OptionRequest optionRequest) {
-		return Option.builder()
-			.number(optionRequest.getNumber())
-			.build();
-	}
+	@Value
+	public static class OptionNumber {
+		int numberValue;
 
-	public OptionEditor.OptionEditorBuilder toEditor() {
-		return OptionEditor.builder()
-			.number(number);
-	}
-
-	public void edit(OptionEditor optionEditor) {
-		number = optionEditor.getNumber();
+		public OptionNumber(int value) {
+			this.numberValue = value;
+		}
 	}
 }

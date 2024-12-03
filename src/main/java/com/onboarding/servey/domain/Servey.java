@@ -1,65 +1,67 @@
 package com.onboarding.servey.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.onboarding.common.domain.BaseEntity;
-import com.onboarding.servey.dto.request.ServeyRequest;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Value;
 
-@Entity
-@Getter
-@Table(name = "servey")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Servey extends BaseEntity {
 
-	@Column(nullable = false)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Servey {
+
+	private Long serveyId;
 	private String name;
-
-	@Column(nullable = false)
 	private String description;
+	private List<Question> questions;
 
-	@JsonManagedReference
-	@OneToMany(mappedBy = "servey", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Question> questions = new ArrayList<>();
-
-	@Builder
-	public Servey(String name, String description) {
-		this.name = name;
-		this.description = description;
+	public static Servey generateServey(
+		ServeyId serveyId,
+		ServeyName serveyName,
+		ServeyDescription serveyDescription,
+		ServeyQuestion serveyQuestion) {
+		return new Servey(
+			serveyId.serveyId,
+			serveyName.nameValue,
+			serveyDescription.descriptionValue,
+			serveyQuestion.questionValue);
 	}
 
-	public void addQuestion(Question question) {
-		this.questions.add(question);
-		question.setServey(this);
+	@Value
+	public static class ServeyId {
+		Long serveyId;
+		public ServeyId(Long value) {
+			this.serveyId = value;
+		}
 	}
 
-	public static Servey of(ServeyRequest serveyRequest) {
-		return Servey.builder()
-			.name(serveyRequest.getName())
-			.description(serveyRequest.getDescription())
-			.build();
+	@Value
+	public static class ServeyName {
+		String nameValue;
+
+		public ServeyName(String value) {
+			this.nameValue = value;
+		}
 	}
 
-	public ServeyEditor.ServeyEditorBuilder toEditor() {
-		return ServeyEditor.builder()
-			.name(name)
-			.description(description);
+	@Value
+	public static class ServeyDescription {
+		String descriptionValue;
+
+		public ServeyDescription(String value) {
+			this.descriptionValue = value;
+		}
 	}
 
-	public void edit(ServeyEditor serveyEditor) {
-		name = serveyEditor.getName();
-		description = serveyEditor.getDescription();
+	@Value
+	public static class ServeyQuestion {
+		List<Question> questionValue;
+
+		public ServeyQuestion(List<Question> value) {
+			this.questionValue = value;
+		}
 	}
 }
